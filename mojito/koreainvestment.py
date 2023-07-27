@@ -653,11 +653,11 @@ class KoreaInvestment:
         """
         if self.exchange == "서울":
             df = self.fetch_kospi_symbols()
-            kospi_df = df[['단축코드', '한글명', '그룹코드']].copy()
+            kospi_df = df[['단축코드', '한글명', '그룹코드', '시가총액', '기준가']].copy()
             kospi_df['시장'] = '코스피'
 
             df = self.fetch_kosdaq_symbols()
-            kosdaq_df = df[['단축코드', '한글명', '그룹코드']].copy()
+            kosdaq_df = df[['단축코드', '한글명', '그룹코드', '시가총액', '기준가']].copy()
             kosdaq_df['시장'] = '코스닥'
 
             df = pd.concat([kospi_df, kosdaq_df], axis=0)
@@ -1330,6 +1330,46 @@ class KoreaInvestment:
             "CTX_AREA_NK100": nk100,
             "INQR_DVSN_1": type1,
             "INQR_DVSN_2": type2
+        }
+
+        resp = requests.get(url, headers=headers, params=params)
+        return resp.json()
+
+    def fetch_order(self, uuid: str):
+        """주식 매매내역 조회
+        Args:
+            uuid (str): ODNO (주문 번호)
+        Returns:
+            _type_: _description_
+        """
+        path = "uapi/domestic-stock/v1/trading/inquire-daily-ccld"
+        url = f"{self.base_url}/{path}"
+
+        headers = {
+           "content-type": "application/json",
+           "authorization": self.access_token,
+           "appKey": self.api_key,
+           "appSecret": self.api_secret,
+           "tr_id": "TTTC8001R"
+        }
+
+        today = datetime.datetime.now().strftime("%Y%m%d")
+
+        params = {
+            "CANO": self.acc_no_prefix,
+            "ACNT_PRDT_CD": self.acc_no_postfix,
+            "INQR_STRT_DT": today,
+            "INQR_END_DT": today,
+            "SLL_BUY_DVSN_CD": "00",
+            "INQR_DVSN": "00",
+            "PDNO": "",
+            "CCLD_DVSN": "00",
+            "ORD_GNO_BRNO": "",
+            "ODNO": uuid,
+            "INQR_DVSN_3": "00",
+            "INQR_DVSN_1": "",
+            "CTX_AREA_FK100": "",
+            "CTX_AREA_NK100": ""
         }
 
         resp = requests.get(url, headers=headers, params=params)
