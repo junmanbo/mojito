@@ -12,6 +12,7 @@ import zipfile
 import os
 import pandas as pd
 import websockets
+import time
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 
@@ -225,6 +226,7 @@ class KoreaInvestmentWS(Process):
                     fmt["body"]["input"]["tr_id"] = tr_id
                     fmt["body"]["input"]["tr_key"] = tr_key
                     subscribe_data = json.dumps(fmt)
+                    time.sleep(0.1)
                     await websocket.send(subscribe_data)
 
             # 체결 통보 등록
